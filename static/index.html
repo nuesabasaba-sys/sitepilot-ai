@@ -1,42 +1,99 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>SitePilot AI</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f9fc">
+  <meta name="description" content="AIがWebサイトを分析し、SEOやコピー、CTAの改善案を提案します。">
+  <title>SitePilot AI — Webサイト分析</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
 </head>
 <body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="SitePilot AI ホーム">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span>SitePilot <span class="brand-ai">AI</span></span>
+      </a>
+      <span class="topbar-note"><span class="status-dot"></span> AIサイト分析ツール</span>
+    </header>
 
-    <h1>SitePilot AI</h1>
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="eyebrow"><span class="eyebrow-line"></span> WEB SITE INSIGHTS</div>
+        <h1 id="hero-title">Webサイトの改善点を、<br class="mobile-break">次の一手に。</h1>
+        <p class="hero-copy">URLを入力するだけで、AIがサイトを読み取り、<br class="desktop-break">SEO・コピー・CTAの改善ポイントをわかりやすく提案します。</p>
 
-    <p>WebサイトのURLを入力してください。</p>
+        <form id="analyzeForm" class="analyze-form">
+          <label class="sr-only" for="urlInput">分析するWebサイトのURL</label>
+          <span class="input-icon" aria-hidden="true">↗</span>
+          <input id="urlInput" name="url" type="url" placeholder="https://example.com" autocomplete="url" required>
+          <button id="analyzeButton" type="submit">
+            <span class="button-label">分析する</span>
+            <span class="button-arrow" aria-hidden="true">→</span>
+          </button>
+        </form>
+        <p class="form-hint">公開されているWebサイトのURLを入力してください</p>
+        <p id="statusMessage" class="status-message" role="status" aria-live="polite" hidden></p>
+        <p id="errorMessage" class="error-message" role="alert" hidden></p>
+      </section>
 
-    <input type="url" id="urlInput" placeholder="https://example.com">
+      <section id="results" class="results" aria-label="分析結果" aria-live="polite" hidden>
+        <div class="results-heading">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-line"></span> ANALYSIS REPORT</div>
+            <h2>分析レポート</h2>
+          </div>
+          <span class="report-badge"><span class="status-dot"></span> 分析完了</span>
+        </div>
 
-    <button id="analyzeButton">分析する</button>
+        <div class="analysis-grid">
+          <article class="analysis-card" data-category="seo">
+            <div class="card-heading"><span class="card-icon icon-seo" aria-hidden="true">⌕</span><div><p class="card-kicker">01 / SEARCH</p><h3>SEO</h3></div></div>
+            <div class="card-content"></div>
+          </article>
+          <article class="analysis-card" data-category="copywriting">
+            <div class="card-heading"><span class="card-icon icon-copy" aria-hidden="true">Aa</span><div><p class="card-kicker">02 / MESSAGE</p><h3>コピーライティング</h3></div></div>
+            <div class="card-content"></div>
+          </article>
+          <article class="analysis-card" data-category="cta">
+            <div class="card-heading"><span class="card-icon icon-cta" aria-hidden="true">↗</span><div><p class="card-kicker">03 / ACTION</p><h3>CTA</h3></div></div>
+            <div class="card-content"></div>
+          </article>
+          <article class="analysis-card" data-category="readability">
+            <div class="card-heading"><span class="card-icon icon-read" aria-hidden="true">≡</span><div><p class="card-kicker">04 / EXPERIENCE</p><h3>読みやすさ</h3></div></div>
+            <div class="card-content"></div>
+          </article>
+        </div>
 
-    <pre id="result"></pre>
-<script>
-    const button = document.getElementById("analyzeButton");
-    const urlInput = document.getElementById("urlInput");
-    const result = document.getElementById("result");
+        <div class="summary-grid">
+          <article class="summary-card audience-card">
+            <div class="summary-heading"><span class="summary-icon" aria-hidden="true">◎</span><div><p class="card-kicker">AUDIENCE</p><h3>想定ターゲット</h3></div></div>
+            <p id="targetAudience" class="summary-text"></p>
+          </article>
+          <article class="summary-card issues-card">
+            <div class="summary-heading"><span class="summary-icon" aria-hidden="true">!</span><div><p class="card-kicker">OVERVIEW</p><h3>Webサイト全体の問題点</h3></div></div>
+            <ul id="overallIssues" class="bullet-list"></ul>
+          </article>
+        </div>
 
-    button.addEventListener("click", async () => {
-        const url = urlInput.value;
+        <section class="recommendations" aria-labelledby="recommendations-title">
+          <div class="recommendations-heading">
+            <div class="recommendation-spark" aria-hidden="true">✳</div>
+            <div><p class="card-kicker">READY TO IMPROVE</p><h2 id="recommendations-title">改善後のテキスト案</h2></div>
+          </div>
+          <div class="recommendation-grid">
+            <article class="recommendation-item"><div class="recommendation-label"><span>01</span> TITLE</div><p id="titleSuggestion"></p></article>
+            <article class="recommendation-item"><div class="recommendation-label"><span>02</span> META DESCRIPTION</div><p id="metaSuggestion"></p></article>
+            <article class="recommendation-item"><div class="recommendation-label"><span>03</span> H1 HEADING</div><p id="h1Suggestion"></p></article>
+          </div>
+        </section>
+        <p class="report-footnote">AIによる提案です。公開前に内容をご確認ください。</p>
+      </section>
+    </main>
 
-        const response = await fetch("/analyze", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                url: url
-            })
-        });
-
-        const data = await response.json();
-
-        result.textContent = JSON.stringify(data, null, 2);
-    });
-</script>
+    <footer class="footer"><span>SitePilot AI</span><span>よりよいWebサイト体験のために</span></footer>
+  </div>
 </body>
 </html>
