@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>SitePilot AI</title>
+</head>
+<body>
+
+    <h1>SitePilot AI</h1>
+
+    <p>WebサイトのURLを入力してください。</p>
+
+    <input type="url" id="urlInput" placeholder="https://example.com">
+
+    <button id="analyzeButton">分析する</button>
+
+    <pre id="result"></pre>
+<script>
+    const button = document.getElementById("analyzeButton");
+    const urlInput = document.getElementById("urlInput");
+    const result = document.getElementById("result");
+
+    button.addEventListener("click", async () => {
+        const url = urlInput.value;
+
+        const response = await fetch("/analyze", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                url: url
+            })
+        });
+
+        const data = await response.json();
+
+        result.textContent = JSON.stringify(data, null, 2);
+    });
+</script>
+</body>
+</html>

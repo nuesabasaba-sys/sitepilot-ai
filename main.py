@@ -1,51 +1,26 @@
-import requests
-from bs4 import BeautifulSoup
+import json
 
-url = input("URLを入力してください: ")
-response = requests.get(url)
+from analyzer import analyze_site
 
-soup = BeautifulSoup(response.text, "html.parser")
 
-print(response.status_code)
-if soup.title is not None:
-    title = soup.title.text
-else:
-    title = ""
-print("title:", title)
-if soup.h1 is not None:
-    h1 = soup.h1.get_text(" ", strip=True)
-else:
-    h1 = ""
-print("h1:", h1)
-h2_list = soup.find_all("h2")
-h2_text_list = []
-for h2 in h2_list:
-    h2_text_list.append(h2.get_text(" ", strip=True))
-print("h2:", h2_text_list)
+def main():
+    url = input("URLを入力してください: ")
+    analysis_result = analyze_site(url)
 
-print("h2の数:", len(h2_list))
+    print(analysis_result)
+    print("SEOの問題点:", analysis_result.seo.issues)
+    print("SEOの改善案:", analysis_result.seo.suggestions)
+    print("title改善案:", analysis_result.title_suggestion)
 
-if len(h2_list) ==0:
-    print("h2なし")
-    
-for h2 in h2_list:
-    print(h2.text)
-    
-description_tag = soup.find("meta", attrs={"name": "description"})
-if description_tag is not None:
-    description = description_tag["content"]
-else:
-    description = ""
-print("description:", description)
-body = soup.body
-body_text = body.get_text(" ", strip=True)
-print(body_text)
-page_data = {
-    "url": url,
-    "title": title,
-    "description": description,
-    "h1": h1,
-    "h2": h2_text_list,
-    "body": body_text
-}
-print(page_data)
+    analysis_dict = analysis_result.model_dump()
+    print(
+        json.dumps(
+            analysis_dict,
+            ensure_ascii=False,
+            indent=2
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()
