@@ -4,7 +4,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import OpenAI, OpenAIError
 from pydantic import BaseModel
 
 
@@ -34,7 +34,17 @@ MODEL_NAME = "gpt-6-luna"
 
 
 def analyze_site(url: str) -> SiteAnalysis:
-    response = requests.get(url)
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        
+
+    except requests.Timeout:
+        raise TimeoutError("Webサイトへの接続がタイムアウトしました")
+    
+    except requests.RequestException:
+        raise ConnectionError("Webサイトを取得できませんでした")
+    
     soup = BeautifulSoup(response.text, "html.parser")
 
     print(response.status_code)
@@ -114,10 +124,19 @@ def analyze_site(url: str) -> SiteAnalysis:
 各項目について、問題点と具体的な改善案を日本語で説明してください。
 """
 
-    response_ai = client.responses.parse(
-        model=MODEL_NAME,
-        input=analysis_prompt,
-        text_format=SiteAnalysis
-    )
+    try:
+        response_ai = client.responses.parse(
+            model=MODEL_NAME,
+            input=analysis_prompt,
+            text_format=SiteAnalysis
+        )
 
-    return response_ai.output_parsed
+    except OpenAIError:
+        raise RuntimeError("AI分析に失敗しました")
+
+    analysis_result = response_ai.output_parsed
+
+    if not isinstance(analysis_result, SiteAnalysis):
+        raise RuntimeError("AI分析結果を取得できませんでした")
+
+    return analysis_result
